@@ -4,7 +4,7 @@ server:
 logging:
   level:
     root: info
-  file: ${java.io.tmpdir}/${spring.application.name}.log
+  file: classpath:log/${spring.application.name}.log
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n'
     file: '%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n'
@@ -14,7 +14,7 @@ spring:
     name: workflow
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/emos?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true
+    url: jdbc:mysql://82.156.25.172:3306/db2022?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true
     username: root
     password: 123123
     type: com.alibaba.druid.pool.DruidDataSource
@@ -25,3 +25,11 @@ spring:
     test-while-idle: true
     test-on-borrow: false
     test-on-return: false
+    # activiti
+  activiti:
+    #每次应用启动不检查Activiti数据表是否存在及版本号是否匹配，提升应用启动速度
+    database-schema-update: true
+    #在项目单独作为一个引擎，本身不部署流程的时候，如果resources目录没有“processes”目录，启动项目报错–找不到processes目录。需要在配置文件中添加以下内容：
+    check-process-definitions: true
+    historyLevel: audit
+    db-history-used: true

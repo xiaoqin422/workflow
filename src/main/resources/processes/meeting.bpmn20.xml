@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                   xmlns:activiti="http://activiti.org/bpmn"
+                   id="diagram_Process_1621341645381" targetNamespace="http://activiti.org/bpmn"
+                   xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+  <bpmn2:process id="meeting" name="meeting" isExecutable="true">
+    <bpmn2:startEvent id="Start" name="开始">
+      <bpmn2:extensionElements />
+      <bpmn2:outgoing>Flow_1wu0r50</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:exclusiveGateway id="Gateway_Creator" name="判断创建者">
+      <bpmn2:incoming>Flow_1wu0r50</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Creator_1</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_Creator_2</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:userTask id="Activity_Manager" name="部门经理审批" activiti:assignee="${managerId}">
+      <bpmn2:extensionElements>
+        <activiti:taskListener delegateExpression="${userTaskListenerService}" event="create" />
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_Creator_1</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_1</bpmn2:outgoing>
+    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="Flow_Creator_1" name="不是总经理" sourceRef="Gateway_Creator" targetRef="Activity_Manager">
+      <bpmn2:conditionExpression>${!isGM}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:serviceTask id="Activity_Notify" name="发送通知" activiti:delegateExpression="${notifyMeetingService}">
+      <bpmn2:incoming>Flow_Creator_2</bpmn2:incoming>
+      <bpmn2:incoming>Flow_Result_NO</bpmn2:incoming>
+      <bpmn2:incoming>Flow_3</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_0hgs257</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:sequenceFlow id="Flow_Creator_2" name="是总经理" sourceRef="Gateway_Creator" targetRef="Activity_Notify">
+      <bpmn2:conditionExpression>${isGM}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:exclusiveGateway id="Gateway_Result" name="判断">
+      <bpmn2:incoming>Flow_1</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Result_OK</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_Result_NO</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:sequenceFlow id="Flow_1" sourceRef="Activity_Manager" targetRef="Gateway_Result" />
+    <bpmn2:userTask id="Activity_GManager" name="总经理审批" activiti:assignee="${gmId}">
+      <bpmn2:extensionElements>
+        <activiti:taskListener delegateExpression="${userTaskListenerService}" event="create" />
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_Result_OK</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_3</bpmn2:outgoing>
+    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="Flow_Result_OK" name="跨部门&#38;同意" sourceRef="Gateway_Result" targetRef="Activity_GManager">
+      <bpmn2:conditionExpression>${result=='同意'&amp;&amp;sameDept==false}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="Flow_Result_NO" name="非跨部门" sourceRef="Gateway_Result" targetRef="Activity_Notify">
+      <bpmn2:conditionExpression>${(result=='不同意'&amp;&amp;sameDept==false)||sameDept==true}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:endEvent id="End" name="结束">
+      <bpmn2:incoming>Flow_0hgs257</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="Flow_1wu0r50" sourceRef="Start" targetRef="Gateway_Creator" />
+    <bpmn2:sequenceFlow id="Flow_0hgs257" sourceRef="Activity_Notify" targetRef="End" />
+    <bpmn2:sequenceFlow id="Flow_3" sourceRef="Activity_GManager" targetRef="Activity_Notify" />
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="meeting">
+      <bpmndi:BPMNEdge id="Flow_0hgs257_di" bpmnElement="Flow_0hgs257">
+        <di:waypoint x="524" y="308" />
+        <di:waypoint x="524" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wu0r50_di" bpmnElement="Flow_1wu0r50">
+        <di:waypoint x="192" y="198" />
+        <di:waypoint x="309" y="198" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05xpv0l_di" bpmnElement="Flow_Result_NO">
+        <di:waypoint x="684" y="153" />
+        <di:waypoint x="684" y="198" />
+        <di:waypoint x="524" y="198" />
+        <di:waypoint x="524" y="228" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="601" y="181" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gkx76t_di" bpmnElement="Flow_Result_OK">
+        <di:waypoint x="709" y="128" />
+        <di:waypoint x="834" y="128" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="719" y="110" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1sya8ot_di" bpmnElement="Flow_1">
+        <di:waypoint x="574" y="128" />
+        <di:waypoint x="659" y="128" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09860ck_di" bpmnElement="Flow_Creator_2">
+        <di:waypoint x="334" y="223" />
+        <di:waypoint x="334" y="268" />
+        <di:waypoint x="474" y="268" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="363" y="251" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xjsdmk_di" bpmnElement="Flow_Creator_1">
+        <di:waypoint x="334" y="173" />
+        <di:waypoint x="334" y="128" />
+        <di:waypoint x="474" y="128" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="357" y="110" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17ignd3_di" bpmnElement="Flow_3">
+        <di:waypoint x="884" y="168" />
+        <di:waypoint x="884" y="268" />
+        <di:waypoint x="574" y="268" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_04i8dn2_di" bpmnElement="Start">
+        <dc:Bounds x="156" y="180" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="163" y="223" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_128ojxd_di" bpmnElement="Gateway_Creator" isMarkerVisible="true">
+        <dc:Bounds x="309" y="173" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="256" y="171" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0oo6m8b_di" bpmnElement="Activity_Manager">
+        <dc:Bounds x="474" y="88" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_001hzw4_di" bpmnElement="Activity_Notify">
+        <dc:Bounds x="474" y="228" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0evskpb_di" bpmnElement="Gateway_Result" isMarkerVisible="true">
+        <dc:Bounds x="659" y="103" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="673" y="81" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1atm792_di" bpmnElement="Activity_GManager">
+        <dc:Bounds x="834" y="88" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1f5h42f_di" bpmnElement="End">
+        <dc:Bounds x="506" y="360" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="513" y="403" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>
